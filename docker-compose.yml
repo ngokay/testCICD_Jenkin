@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  webapplication4:
+    image: ${DOCKER_REGISTRY-}webapplication4
+    build:
+      context: .
+      dockerfile: WebApplication4/Dockerfile
+  elasticsearch:
+    container_name: els
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+    ports:
+      - 9200:9200
+    environment:
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    networks:
+      - elastic
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.16.1
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_URL=http://localhost:9200
+    networks:
+      - elastic
+networks:
+  elastic:
+    driver: bridge
